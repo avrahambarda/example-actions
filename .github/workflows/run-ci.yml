@@ -19,8 +19,9 @@ jobs:
           sudo apt update
           sudo curl -L "https://github.com/docker/compose/releases/download/1.26.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
           sudo chmod +x /usr/local/bin/docker-compose
+          sudo apt-get install nodejs-dev node-gyp libssl1.0-dev
           sudo apt-get install nodejs npm
-          sudo npm install -g --unsafe-perm @neuralegion/nexploit-cli
+          sudo npm install -g @neuralegion/nexploit-cli --unsafe-perm=true
       - name: Save environment variables
         run: |
           printf "NEXPLOIT_TOKEN=${{ secrets.NEXPLOIT_TOKEN }}\nREPEATER=${{ secrets.REPEATER }}\n" > .env
@@ -34,7 +35,7 @@ jobs:
         id: start
         run: |
           SCAN_ID=$(nexploit-cli scan:run                                                 \
-            --test dom_xss                             \
+            --test csrf dom_xss header_security secret_tokens                             \
             --name "🥤 Juice-Shop for a '${GITHUB_REF##*/}' branch #${GITHUB_RUN_NUMBER}" \
             --crawler http://juiceshop.local:3000                                         \
             --repeater ${{ secrets.REPEATER }}                                            \
